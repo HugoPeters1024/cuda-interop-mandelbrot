@@ -196,11 +196,10 @@ int main(int argc, char** argv) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
+    // Register the texture with cuda
     cudaGraphicsResource* pGraphicsResource;
     cudaSafe( cudaGraphicsGLRegisterImage(&pGraphicsResource, texture, GL_TEXTURE_2D, cudaGraphicsRegisterFlagsWriteDiscard) );
     cudaArray *arrayPtr;
-
-
 
     int deviceCount;
     cudaGetDeviceCount(&deviceCount);
@@ -256,8 +255,8 @@ int main(int argc, char** argv) {
         glfwPollEvents();
         glfwSwapBuffers(window);
         printf("fps: %f\n", 1.0f / (glfwGetTime() - start));
-        while (glfwGetTime() - start < 1.0 / 60.0) {}
 
+        // Update the center of the screen.
         double new_mx, new_my;
         glfwGetCursorPos(window, &new_mx, &new_my);
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
@@ -269,6 +268,9 @@ int main(int argc, char** argv) {
         }
         mx = new_mx;
         my = new_my;
+
+        // Vsync is broken in GLFW for my card, so just hack it in.
+        while (glfwGetTime() - start < 1.0 / 60.0) {}
     }
 
     glfwDestroyWindow(window);

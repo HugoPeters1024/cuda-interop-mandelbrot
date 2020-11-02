@@ -32,17 +32,8 @@ struct mandelstate
 
 __device__ float mandel_iterate(double x, double y)
 {
-    const int max_iteration = 1024;
+    const int max_iteration = 512;
     int i =0;
-    /*
-    while(i++ < 64 && a*a + b*b <= 4) {
-        double anew = a * a - b * b - x;
-        double bnew = 2.0 * a * b + y;
-        a = anew;
-        b = bnew;
-    }
-    */
-
     double a = 0, b = 0, w = 0, x2 = 0, y2 =0;
     while(i++ < max_iteration && x2 + y2 <= 4) {
         a = x2 - y2 + x;
@@ -65,7 +56,7 @@ __global__ void mandelbrot(cudaSurfaceObject_t texRef, mandelstate state) {
         double fx = sx / state.scale - state.centerx;
         double fy = sy / state.scale - state.centery;
         float m = mandel_iterate(fx, fy);
-        surf2Dwrite(m, texRef, x*sizeof(float), y);
+        surf2Dwrite(m, texRef, x*sizeof(float4), y);
     }
 }
 
@@ -192,7 +183,7 @@ int main(int argc, char** argv) {
     GLuint texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_FLOAT, screen);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGBA, GL_FLOAT, screen);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
